@@ -33,7 +33,19 @@ def test_FastaParser():
     files that are blank or corrupted in some way. Two example Fasta files are
     provided in /tests/bad.fa and /tests/empty.fa
     """
-    pass
+    
+    for header, sequence in FastaParser("data/test.fa"):
+        assert header.startswith("seq")
+        assert all(base in "ACGT" for base in sequence) # suggestion from VScode
+        assert len(sequence) > 0  # sequence should not be empty
+    
+    blank_fasta = FastaParser("tests/blank.fa")
+    with pytest.raises(ValueError, match=f"File {blank_fasta.filename} had 0 lines."):
+        header, sequence in FastaParser("tests/blank.fa")
+
+    bad_fasta = FastaParser("tests/bad.fa")
+    with pytest.raises(ValueError, match=f"Got an empty line for {bad_fasta.filename} @ line 2"):
+        header, sequence in FastaParser("tests/bad.fa")
 
 
 def test_FastaFormat():
@@ -41,7 +53,9 @@ def test_FastaFormat():
     Test to make sure that a fasta file is being read in if a fastq file is
     read, the first item is None
     """
-    pass
+    fasta_parser = FastaParser("data/test.fq")
+    header, sequence = next(iter(fasta_parser)) # grab first item without setting up loop
+    assert header is None
 
 
 def test_FastqParser():
@@ -50,11 +64,20 @@ def test_FastqParser():
     an instance of your FastqParser class and assert that it properly reads 
     in the example Fastq File.
     """
-    pass
+    for header, sequence, quality in FastqParser("data/test.fq"):
+        assert header.startswith("seq")
+        assert all(base in "ACGT" for base in sequence)
+        assert len(sequence) > 0  # sequence should not be empty
+        assert len(quality) == len(sequence)  # quality string should match sequence length
+
+        # Additional edge case tests can be added here as well, but not being asked for it 
+        # nor were we provided bad example files.
 
 def test_FastqFormat():
     """
     Test to make sure fastq file is being read in. If this is a fasta file, the
     first line is None
     """
-    pass
+    fastq_parser = FastqParser("data/test.fa")
+    header, sequence, quality = next(iter(fastq_parser)) # grab first item without setting up loop
+    assert header is None
