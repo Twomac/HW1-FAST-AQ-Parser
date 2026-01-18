@@ -8,6 +8,8 @@ def main():
     """
     The main function
     """
+    fasta_parser = FastaParser("data/test.fa")
+    fastq_parser = FastqParser("data/test.fq")
     # Create instance of FastaParser
     # Create instance of FastqParser
         
